@@ -227,7 +227,7 @@ public class UI extends javax.swing.JFrame  {
         } catch (SQLException ex) {
             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        table1Model.insertRow(viewTable.getRowCount(),new Object[]{"","","","","","","","","","","","","","","",(id)});
+        table1Model.insertRow(viewTable.getRowCount(),new Object[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,(id)});
         LaserSched.newRows.add(id);
     }//GEN-LAST:event_insertRowActionPerformed
 
