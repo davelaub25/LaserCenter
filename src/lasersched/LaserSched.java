@@ -88,14 +88,40 @@ public class LaserSched extends JPanel{
             
             if(newRows.contains(rowData[j-1][15])){
                 for( int i = 1 ; i <= (nCol - 1) ; i++){      //Using nCol - 1 to skip the ID field
-                    preparedStmtInsert.setString(i, rowData[j-1][i-1].toString());
+                    if (rowData[j-1][i-1] == null){
+                        if( i == 3 || i == 7 || i == 8 || i == 9 ){
+                            preparedStmtInsert.setNull(i, java.sql.Types.DATE);
+                        }
+                        if( i == 1 || i == 2 || i == 4 || i == 5 || i == 6 || i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ){
+                            preparedStmtInsert.setNull(i, java.sql.Types.VARCHAR);
+                        }
+                        if( i == 0 || i == 15 ){
+                            preparedStmtInsert.setNull(i, java.sql.Types.INTEGER);
+                        }
                     }
+                    else{
+                        preparedStmtInsert.setObject(i, rowData[j-1][i-1].toString());
+                    }
+                }
                 preparedStmtInsert.executeUpdate();                
             }
             else{
                 for( int i = 1 ; i <= nCol ; i++){         
-                    preparedStmtUpdate.setString(i, rowData[j-1][i-1].toString());
+                    if (rowData[j-1][i-1] == null){
+                        if( i == 3 || i == 7 || i == 8 || i == 9 ){
+                            preparedStmtUpdate.setNull(i, java.sql.Types.DATE);
+                        }
+                        if( i == 1 || i == 2 || i == 4 || i == 5 || i == 6 || i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ){
+                            preparedStmtUpdate.setNull(i, java.sql.Types.VARCHAR);
+                        }
+                        if( i == 0 || i == 15 ){
+                            preparedStmtUpdate.setNull(i, java.sql.Types.INTEGER);
+                        }
                     }
+                    else{
+                        preparedStmtUpdate.setString(i, rowData[j-1][i-1].toString());
+                    }
+                }
                 preparedStmtUpdate.executeUpdate();
             }
         }
