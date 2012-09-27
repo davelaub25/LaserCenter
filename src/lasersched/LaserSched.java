@@ -128,7 +128,6 @@ public class LaserSched extends JPanel{
         tableChangedFlag = false;
         connection.close();
         newRows.clear();
-        
     }
     ////////////////////////////////////////////////////////////////////////////
     public static Object[][] getTableData (JTable table) {
