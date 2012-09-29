@@ -1,4 +1,5 @@
 /*
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -32,14 +33,13 @@ public class LaserSched extends JPanel{
     /**
      * @param args the command line arguments
      */
-    
-     
+         
     @SuppressWarnings("unchecked")
     public static void buildTable() /*throws SQLException*/ {
         try {
             Class.forName("com.mysql.jdbc.Driver"); 
             connection = DriverManager.getConnection("jdbc:mysql://davelaub.com:3306/dlaub25_lasersched","dlaub25_fmi","admin"); 
-            ResultSet rs1 = connection.createStatement().executeQuery("SELECT main.jobNum, client.client, main.jobName, main.mailDate, type.type, main.jobStatus, programmer.programmer, main.signOffs, main.approved, main.production, platform.platform, csr.csr, printer.printer, data.data, main.notes, main.id  FROM main, csr, client, type, programmer, platform, printer, data WHERE main.csr = csr.csr AND main.client = client.client AND main.type = type.type AND main.programmer = programmer.programmer AND main.platform = platform.platform AND main.printer = printer.printer AND main.data = data.data");
+            ResultSet rs1 = connection.createStatement().executeQuery("SELECT * FROM `main`");
             ResultSetMetaData md1 = rs1.getMetaData();
             System.out.println("Connection succeed!"); 
          

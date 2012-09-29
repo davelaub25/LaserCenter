@@ -151,6 +151,7 @@ public class UI extends javax.swing.JFrame  {
         jScrollPane1 = new javax.swing.JScrollPane();
         updateTable = new javax.swing.JButton();
         insertRow = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("fmi Laser Status Center");
@@ -172,6 +173,13 @@ public class UI extends javax.swing.JFrame  {
             }
         });
 
+        jButton1.setText("Delete Selected Row");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -181,7 +189,9 @@ public class UI extends javax.swing.JFrame  {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1619, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1482, Short.MAX_VALUE)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(updateTable)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(insertRow, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -195,7 +205,8 @@ public class UI extends javax.swing.JFrame  {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(updateTable)
-                    .addComponent(insertRow))
+                    .addComponent(insertRow)
+                    .addComponent(jButton1))
                 .addContainerGap(199, Short.MAX_VALUE))
         );
 
@@ -230,6 +241,10 @@ public class UI extends javax.swing.JFrame  {
         table1Model.insertRow(viewTable.getRowCount(),new Object[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,"",(id)});
         LaserSched.newRows.add(id);
     }//GEN-LAST:event_insertRowActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        ((DefaultTableModel)viewTable.getModel()).removeRow(viewTable.getSelectedRow());
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -288,6 +303,7 @@ public class UI extends javax.swing.JFrame  {
 ////////////////////////////////////////////////////////////////////////////////   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton insertRow;
+    private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton updateTable;
     // End of variables declaration//GEN-END:variables

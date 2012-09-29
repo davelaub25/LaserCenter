@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/lib/derbyclient.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/jcalendar-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/itext-pdfa-5.3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/eclipselink-2.3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/itextpdf-5.3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/org.eclipse.persistence.jpa.jpql_1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/javax.persistence-2.0.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/mail.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/swing-bits-0.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/jdatepicker.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/itext-xtra-5.3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/mysql-connector-java-5.1.21-bin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
