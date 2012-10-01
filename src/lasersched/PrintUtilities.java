@@ -51,14 +51,13 @@ public class PrintUtilities implements Printable {
     } else {
       Graphics2D g2d = (Graphics2D)g;
       g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-      double div = 72;
-      Dim pageSize = new Dim((int)pageFormat.getImageableWidth()/div,(int)pageFormat.getImageableHeight()/div);
+      disableDoubleBuffering(componentToBePrinted);
+      Dim pageSize = new Dim((int)pageFormat.getImageableWidth(),(int)pageFormat.getImageableHeight());
       Dimension compSize = componentToBePrinted.getSize();
       double widthRatio = pageSize.width/compSize.width;
       double heightRatio = pageSize.height/compSize.height;
       double scale = Math.min(widthRatio, heightRatio);
-      g2d.scale(.5, .5);
-      disableDoubleBuffering(componentToBePrinted);
+      g2d.scale(scale, scale);
       componentToBePrinted.paint(g2d);
       enableDoubleBuffering(componentToBePrinted);
       return(PAGE_EXISTS);

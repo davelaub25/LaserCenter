@@ -257,7 +257,14 @@ public class UI extends javax.swing.JFrame  {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void printButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printButtonActionPerformed
-        PrintUtilities.printComponent(viewTable);
+        JTable printTable = viewTable;
+        printTable.removeColumn(viewTable.getColumnModel().getColumn(10));
+        printTable.removeColumn(viewTable.getColumnModel().getColumn(11));
+        printTable.removeColumn(viewTable.getColumnModel().getColumn(12));
+        printTable.removeColumn(viewTable.getColumnModel().getColumn(13));
+        printTable.removeColumn(viewTable.getColumnModel().getColumn(15));
+        
+        PrintUtilities.printComponent(jScrollPane1);
     }//GEN-LAST:event_printButtonActionPerformed
 
     /**
