@@ -19,6 +19,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -46,9 +47,41 @@ public class UI extends javax.swing.JFrame  {
         
         viewTable = LaserSched.createAlternating(LaserSched.jTable2.getModel());
                 
-        int vColIndex = 3;
+        viewTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         
-        TableColumn col = viewTable.getColumnModel().getColumn(vColIndex);
+        TableColumn jobNum  = viewTable.getColumnModel().getColumn(0);
+        TableColumn client  = viewTable.getColumnModel().getColumn(1);
+        TableColumn jobName  = viewTable.getColumnModel().getColumn(2);
+        TableColumn mailDate  = viewTable.getColumnModel().getColumn(3);
+        TableColumn type  = viewTable.getColumnModel().getColumn(4);
+        TableColumn jobStatus  = viewTable.getColumnModel().getColumn(5);
+        TableColumn programmer  = viewTable.getColumnModel().getColumn(6);
+        TableColumn soDate  = viewTable.getColumnModel().getColumn(7);
+        TableColumn approvDate  = viewTable.getColumnModel().getColumn(8);
+        TableColumn prodDate  = viewTable.getColumnModel().getColumn(9);
+        TableColumn platform  = viewTable.getColumnModel().getColumn(10);
+        TableColumn csr  = viewTable.getColumnModel().getColumn(11);
+        TableColumn printer  = viewTable.getColumnModel().getColumn(12);
+        TableColumn data  = viewTable.getColumnModel().getColumn(13);
+        TableColumn notes  = viewTable.getColumnModel().getColumn(14);
+        TableColumn id  = viewTable.getColumnModel().getColumn(15);
+        
+        jobNum.setPreferredWidth(50);
+        client.setPreferredWidth(250);
+        jobName.setPreferredWidth(300);
+        mailDate.setPreferredWidth(80);
+        type.setPreferredWidth(50);
+        jobStatus.setPreferredWidth(110);
+        programmer.setPreferredWidth(80);
+        soDate.setPreferredWidth(80);
+        approvDate.setPreferredWidth(80);
+        prodDate.setPreferredWidth(80);
+        platform.setPreferredWidth(70);
+        csr.setPreferredWidth(70);
+        printer.setPreferredWidth(70);
+        data.setPreferredWidth(50);
+        notes.setPreferredWidth(385);
+        id.setPreferredWidth(30);
         
         jScrollPane1.setViewportView(viewTable);
 
@@ -257,14 +290,19 @@ public class UI extends javax.swing.JFrame  {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void printButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printButtonActionPerformed
-        JTable printTable = viewTable;
-        printTable.removeColumn(viewTable.getColumnModel().getColumn(10));
-        printTable.removeColumn(viewTable.getColumnModel().getColumn(11));
-        printTable.removeColumn(viewTable.getColumnModel().getColumn(12));
-        printTable.removeColumn(viewTable.getColumnModel().getColumn(13));
-        printTable.removeColumn(viewTable.getColumnModel().getColumn(15));
-        
-        PrintUtilities.printComponent(jScrollPane1);
+        DefaultTableModel printModel = (DefaultTableModel) UI.viewTable.getModel();
+        JTable printTable = new JTable(printModel);
+        printTable.setAutoCreateColumnsFromModel(false);
+        printTable.removeColumn(printTable.getColumnModel().getColumn(10));
+        printTable.removeColumn(printTable.getColumnModel().getColumn(10));
+        printTable.removeColumn(printTable.getColumnModel().getColumn(10));
+        printTable.removeColumn(printTable.getColumnModel().getColumn(10));
+        printTable.removeColumn(printTable.getColumnModel().getColumn(11));
+        JScrollPane printPane = new JScrollPane(printTable);
+        JFrame frame = new JFrame("TableDemo");
+        frame.setContentPane(printPane);
+        frame.setVisible(true);
+        PrintUtilities.printComponent(printPane);
     }//GEN-LAST:event_printButtonActionPerformed
 
     /**

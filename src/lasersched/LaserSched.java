@@ -48,7 +48,7 @@ public class LaserSched extends JPanel{
                 {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
                 },
             new String [] {
-                "Job Number", "Client", "Job Name", "Mail Date", "Type", "Job Status", "Programmer", "Sign Offs", "Approved", 
+                "Job #", "Client", "Job Name", "Mail Date", "Type", "Job Status", "Programmer", "Sign Offs", "Approved", 
                 "Production", "Platform", "CSR", "Printer", "Data", "Notes", "ID"
                 }
             );
