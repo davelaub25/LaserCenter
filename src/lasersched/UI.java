@@ -5,27 +5,37 @@
 package lasersched;
 
 import java.awt.Component;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.Date;
+//import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.DefaultRowSorter;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import lasersched.TableFilterDemo.MyTableModel;
 
 /**
  *
@@ -298,9 +308,37 @@ public class UI extends javax.swing.JFrame  {
         printTable.removeColumn(printTable.getColumnModel().getColumn(10));
         printTable.removeColumn(printTable.getColumnModel().getColumn(10));
         printTable.removeColumn(printTable.getColumnModel().getColumn(11));
+        printTable.setPreferredScrollableViewportSize(printTable.getPreferredSize());
+        
+        Calendar cal = Calendar.getInstance();
+        RowFilter<MyTableModel, Object> filter = null;
+        Date weekStart = new Date(cal.getFirstDayOfWeek());
+        ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(7);
+        filters.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, weekStart, 3));
+        //filters.add(RowFilter.regexFilter("Approved", 5));
+        //filters.add(RowFilter.regexFilter("Setting Up", 5));
+        //filters.add(RowFilter.regexFilter("Need Approval", 5));
+        //filters.add(RowFilter.regexFilter("On Hold", 5));
+        //filters.add(RowFilter.regexFilter("Out to Laser", 5));
+        //filters.add(RowFilter.regexFilter("Partially Printed", 5));
+        filter = RowFilter.orFilter(filters);
+        
+        /*RowFilter<MyTableModel, Object> filter = null;
+         * filter = RowFilter.regexFilter("Printed", 5);*/
+        
+                
+        printTable.setAutoCreateRowSorter(true);
+        DefaultRowSorter sorter = ((DefaultRowSorter)printTable.getRowSorter());
+        sorter.setRowFilter(filter);
+        ArrayList list = new ArrayList();
+        list.add( new RowSorter.SortKey(1, SortOrder.ASCENDING) );
+        sorter.setSortKeys(list);
+        sorter.sort();
+        
         JScrollPane printPane = new JScrollPane(printTable);
         JFrame frame = new JFrame("TableDemo");
         frame.setContentPane(printPane);
+        frame.pack();
         frame.setVisible(true);
         PrintUtilities.printComponent(printPane);
     }//GEN-LAST:event_printButtonActionPerformed
