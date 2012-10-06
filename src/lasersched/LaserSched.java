@@ -51,7 +51,18 @@ public class LaserSched extends JPanel{
                 "Job #", "Client", "Job Name", "Mail Date", "Type", "Job Status", "Programmer", "Sign Offs", "Approved", 
                 "Production", "Platform", "CSR", "Printer", "Data", "Notes", "ID"
                 }
-            );
+                
+            ){
+                Class[] types = new Class [] {  
+                    //COL. TYPES ARE HERE!!!  
+                    java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.util.Date.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.util.Date.class, java.util.Date.class, java.util.Date.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class 
+                };  
+
+                @Override  
+                public Class getColumnClass(int columnIndex) {  
+                    return types [columnIndex];  
+                }
+            };
             model.removeRow(0);
             jTable2 = new javax.swing.JTable(model);
             rs1.beforeFirst();
@@ -60,7 +71,23 @@ public class LaserSched extends JPanel{
                 Object [] rowData = new Object[numberOfColumns];
                 for (int i = 0; i < rowData.length; ++i)
                 {
-                    rowData[i] = rs1.getObject(i+1);
+                    System.out.println(rs1.getString(i+1));
+                    if(rs1.getString(i+1) == null){
+                        rowData[i] = rs1.getObject(i+1);
+                    }
+                    else if( i == 8 || i == 9 ){
+                        java.sql.Timestamp  sqlTimeStamp = (java.sql.Timestamp)rs1.getObject(i+1);
+                        Date utilDate = new Date(sqlTimeStamp.getTime());
+                        rowData[i] = utilDate;
+                    }
+                    else if( i == 3 || i == 7){
+                        java.sql.Date  sqlDate = (java.sql.Date)rs1.getObject(i+1);
+                        Date utilDate = new Date(sqlDate.getTime());
+                        rowData[i] = utilDate;
+                    }
+                    else{
+                        rowData[i] = rs1.getObject(i+1);
+                    }
                 }
                 model.addRow(rowData);
                 }

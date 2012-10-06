@@ -5,7 +5,7 @@
 package lasersched;
 
 import java.awt.Component;
-import java.awt.List;
+//import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -14,6 +14,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -303,6 +304,9 @@ public class UI extends javax.swing.JFrame  {
         DefaultTableModel printModel = (DefaultTableModel) UI.viewTable.getModel();
         JTable printTable = new JTable(printModel);
         printTable.setAutoCreateColumnsFromModel(false);
+        for (int i = 0; i < printTable.getModel().getColumnCount(); i++) {
+            System.out.println(printTable.getModel().getColumnClass(i));
+        }
         printTable.removeColumn(printTable.getColumnModel().getColumn(10));
         printTable.removeColumn(printTable.getColumnModel().getColumn(10));
         printTable.removeColumn(printTable.getColumnModel().getColumn(10));
@@ -310,23 +314,30 @@ public class UI extends javax.swing.JFrame  {
         printTable.removeColumn(printTable.getColumnModel().getColumn(11));
         printTable.setPreferredScrollableViewportSize(printTable.getPreferredSize());
         
+        
+        
         Calendar cal = Calendar.getInstance();
+        cal.clear(Calendar.HOUR_OF_DAY);
+        cal.clear(Calendar.MINUTE);
+        cal.clear(Calendar.SECOND);
+        cal.clear(Calendar.MILLISECOND);
+
+        // get start of this week in milliseconds
+        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
         RowFilter<MyTableModel, Object> filter = null;
-        Date weekStart = new Date(cal.getFirstDayOfWeek());
-        ArrayList<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(7);
-        filters.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, weekStart, 3));
-        //filters.add(RowFilter.regexFilter("Approved", 5));
-        //filters.add(RowFilter.regexFilter("Setting Up", 5));
-        //filters.add(RowFilter.regexFilter("Need Approval", 5));
-        //filters.add(RowFilter.regexFilter("On Hold", 5));
-        //filters.add(RowFilter.regexFilter("Out to Laser", 5));
-        //filters.add(RowFilter.regexFilter("Partially Printed", 5));
+        Date weekStart = new Date(cal.getTimeInMillis());
+        System.out.println(weekStart);
+        List<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(1);
+        
+        filter = (RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, weekStart, 3));
+        filters.add(RowFilter.regexFilter("Approved", 5));
+        filters.add(RowFilter.regexFilter("Setting Up", 5));
+        filters.add(RowFilter.regexFilter("Need Approval", 5));
+        filters.add(RowFilter.regexFilter("On Hold", 5));
+        filters.add(RowFilter.regexFilter("Out to Laser", 5));
+        filters.add(RowFilter.regexFilter("Partially Printed", 5));
         filter = RowFilter.orFilter(filters);
-        
-        /*RowFilter<MyTableModel, Object> filter = null;
-         * filter = RowFilter.regexFilter("Printed", 5);*/
-        
-                
+                        
         printTable.setAutoCreateRowSorter(true);
         DefaultRowSorter sorter = ((DefaultRowSorter)printTable.getRowSorter());
         sorter.setRowFilter(filter);
@@ -383,9 +394,7 @@ public class UI extends javax.swing.JFrame  {
     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
 
        @Override
-    public Component getTableCellRendererComponent(JTable table,
-            Object value, boolean isSelected, boolean hasFocus,
-            int row, int column) {
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if( value instanceof Date) {
             // Use SimpleDateFormat class to get a formatted String from Date object.
             String strDate = new SimpleDateFormat("MM/dd/yyyy").format((Date)value);
@@ -397,7 +406,7 @@ public class UI extends javax.swing.JFrame  {
                 hasFocus, row, column);
     }
 };
-////////////////////////////////////////////////////////////////////////////////   
+////////////////////////////////////////////////////////////////////////////////
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton insertRow;
     private javax.swing.JButton jButton1;
