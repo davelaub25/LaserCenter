@@ -1,4 +1,4 @@
-/*
+    /*
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -91,6 +91,11 @@ public class LaserSched extends JPanel{
                 }
                 model.addRow(rowData);
                 }
+            JScrollPane printPane = new JScrollPane(jTable2);
+            JFrame frame = new JFrame("TableDemo");
+            frame.setContentPane(printPane);
+            frame.pack();
+            frame.setVisible(true);
         }
         catch (ClassNotFoundException | SQLException e) { 
             } 
@@ -168,7 +173,7 @@ public class LaserSched extends JPanel{
                 if(value instanceof Date){
                     System.out.println("Date Found: " + value);
                     value = f.format((Date)value);
-                    System.out.println("Formatted Version: " + value);
+                    //System.out.println("Formatted Version: " + value);
                 }
                 tableData[i][j] = value;
             }

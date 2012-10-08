@@ -60,6 +60,8 @@ public class UI extends javax.swing.JFrame  {
                 
         viewTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         
+        viewTable.getTableHeader().setReorderingAllowed(false);
+        
         TableColumn jobNum  = viewTable.getColumnModel().getColumn(0);
         TableColumn client  = viewTable.getColumnModel().getColumn(1);
         TableColumn jobName  = viewTable.getColumnModel().getColumn(2);
@@ -329,7 +331,7 @@ public class UI extends javax.swing.JFrame  {
         System.out.println(weekStart);
         List<RowFilter<Object,Object>> filters = new ArrayList<RowFilter<Object,Object>>(1);
         
-        filter = (RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, weekStart, 3));
+        filters.add(RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, weekStart, 3));
         filters.add(RowFilter.regexFilter("Approved", 5));
         filters.add(RowFilter.regexFilter("Setting Up", 5));
         filters.add(RowFilter.regexFilter("Need Approval", 5));
