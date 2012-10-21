@@ -137,7 +137,7 @@ public class LaserSched extends JPanel{
                 }
                 preparedStmtInsert.executeUpdate();                
             }
-            else{
+            else if (UI.modifiedRows.contains(rowData[j-1][15])){
                 for( int i = 1 ; i <= nCol ; i++){         
                     if (rowData[j-1][i-1] == null){
                         if( i == 3 || i == 7 || i == 8 || i == 9 ){
