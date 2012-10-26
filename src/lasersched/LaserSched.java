@@ -91,11 +91,11 @@ public class LaserSched extends JPanel{
                 }
                 model.addRow(rowData);
                 }
-            JScrollPane printPane = new JScrollPane(jTable2);
-            JFrame frame = new JFrame("TableDemo");
-            frame.setContentPane(printPane);
-            frame.pack();
-            frame.setVisible(true);
+            /*JScrollPane printPane = new JScrollPane(jTable2);
+             * JFrame frame = new JFrame("TableDemo");
+             * frame.setContentPane(printPane);
+             * frame.pack();
+             * frame.setVisible(true);*/
         }
         catch (ClassNotFoundException | SQLException e) { 
             } 

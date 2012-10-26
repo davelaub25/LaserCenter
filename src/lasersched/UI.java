@@ -166,6 +166,11 @@ public class UI extends javax.swing.JFrame  {
                     System.out.println("Table Has Been Modified");
                     LaserSched.tableChangedFlag = true;
                     modifiedRows.add(viewTable.getValueAt(row, 15));
+                    try {
+                        LaserSched.buildUpdateQuery(LaserSched.getTableData(viewTable));
+                    } catch (            SQLException | ClassNotFoundException ex) {
+                        Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 if(column == 5 && newValue.contains("Approved")){
                     System.out.println("Job changed to approved");
