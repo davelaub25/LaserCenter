@@ -48,14 +48,14 @@ public class LaserSched extends JPanel{
                 {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
                 },
             new String [] {
-                "Job #", "Client", "Job Name", "Mail Date", "Type", "Job Status", "Programmer", "Sign Offs", "Approved", 
-                "Production", "Platform", "CSR", "Printer", "Data", "Notes", "ID"
+                "Job #", "Client", "Job Name", "Mail Date", "Type", "Job Status", "Notes", "Programmer", "Sign Offs", "Approved", 
+                "Production", "Platform", "CSR", "Printer", "Data", "ID"
                 }
                 
             ){
                 Class[] types = new Class [] {  
                     //COL. TYPES ARE HERE!!!  
-                    java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.util.Date.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.util.Date.class, java.util.Date.class, java.util.Date.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class 
+                    java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.util.Date.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.util.Date.class, java.util.Date.class, java.util.Date.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class 
                 };  
 
                 @Override  
@@ -75,12 +75,12 @@ public class LaserSched extends JPanel{
                     if(rs1.getString(i+1) == null){
                         rowData[i] = rs1.getObject(i+1);
                     }
-                    else if( i == 8 || i == 9 ){
+                    else if( i == 9 || i == 10 ){
                         java.sql.Timestamp  sqlTimeStamp = (java.sql.Timestamp)rs1.getObject(i+1);
                         Date utilDate = new Date(sqlTimeStamp.getTime());
                         rowData[i] = utilDate;
                     }
-                    else if( i == 3 || i == 7){
+                    else if( i == 3 || i == 8){
                         java.sql.Date  sqlDate = (java.sql.Date)rs1.getObject(i+1);
                         Date utilDate = new Date(sqlDate.getTime());
                         rowData[i] = utilDate;
@@ -113,18 +113,18 @@ public class LaserSched extends JPanel{
         ResultSetMetaData md1 = rs1.getMetaData();
 
         for( int j = 1; j <= nRow ; j++ ){
-            String updateQuery = "UPDATE main SET jobNum = ?, client = ?, jobName = ?, mailDate = ?, type = ?, jobStatus = ?, programmer = ?, signOffs = ?, approved = ?, production = ?, platform = ?, csr = ?, printer = ?, data = ?, notes = ? WHERE id = ?";
-            String insertQuery = "INSERT INTO `dlaub25_lasersched`.`main` (`jobNum`, `client`, `jobName`, `mailDate`, `type`, `jobStatus`, `programmer`, `signOffs`, `approved`, `production`, `platform`, `csr`, `printer`, `data`, `Notes`, `id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, null);";
+            String updateQuery = "UPDATE main SET jobNum = ?, client = ?, jobName = ?, mailDate = ?, type = ?, jobStatus = ?, notes = ?, programmer = ?, signOffs = ?, approved = ?, production = ?, platform = ?, csr = ?, printer = ?, data = ? WHERE id = ?";
+            String insertQuery = "INSERT INTO `dlaub25_lasersched`.`main` (`jobNum`, `client`, `jobName`, `mailDate`, `type`, `jobStatus`, `Notes`, `programmer`, `signOffs`, `approved`, `production`, `platform`, `csr`, `printer`, `data`, `id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, null);";
             PreparedStatement preparedStmtUpdate = connection.prepareStatement(updateQuery);
             PreparedStatement preparedStmtInsert = connection.prepareStatement(insertQuery);
             
             if(newRows.contains(rowData[j-1][15])){
                 for( int i = 1 ; i <= (nCol - 1) ; i++){      //Using nCol - 1 to skip the ID field
                     if (rowData[j-1][i-1] == null){
-                        if( i == 3 || i == 7 || i == 8 || i == 9 ){
+                        if( i == 3 || i == 8 || i == 9 || i == 10 ){
                             preparedStmtInsert.setNull(i, java.sql.Types.DATE);
                         }
-                        if( i == 1 || i == 2 || i == 4 || i == 5 || i == 6 || i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ){
+                        if( i == 1 || i == 2 || i == 4 || i == 5 || i == 6 || i == 7 || i == 11 || i == 12 || i == 13 || i == 14 ){
                             preparedStmtInsert.setNull(i, java.sql.Types.VARCHAR);
                         }
                         if( i == 0 || i == 15 ){
@@ -140,10 +140,10 @@ public class LaserSched extends JPanel{
             else if (UI.modifiedRows.contains(rowData[j-1][15])){
                 for( int i = 1 ; i <= nCol ; i++){         
                     if (rowData[j-1][i-1] == null){
-                        if( i == 3 || i == 7 || i == 8 || i == 9 ){
+                        if( i == 3 || i == 8 || i == 9 || i == 10 ){
                             preparedStmtUpdate.setNull(i, java.sql.Types.DATE);
                         }
-                        if( i == 1 || i == 2 || i == 4 || i == 5 || i == 6 || i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ){
+                        if( i == 1 || i == 2 || i == 4 || i == 5 || i == 6 || i == 7 || i == 11 || i == 12 || i == 13 || i == 14 ){
                             preparedStmtUpdate.setNull(i, java.sql.Types.VARCHAR);
                         }
                         if( i == 0 || i == 15 ){
@@ -195,9 +195,12 @@ public class LaserSched extends JPanel{
                         int modelRow = convertRowIndexToModel(row);
                         String type = (String)getModel().getValueAt(modelRow, 5);
                         Object date = this.getValueAt(row, column);
-                        if ("Approved".equals(type)) c.setBackground(Color.RED);
+                        if ("Approved".equals(type)) c.setBackground(Color.YELLOW);
                         if ("Printed".equals(type)) c.setBackground(Color.GREEN);
+                        if ("Printing".equals(type)) c.setBackground(Color.CYAN);
+                        if ("Partially Printed".equals(type)) c.setBackground(Color.CYAN);
                         if ("On Hold".equals(type)) c.setBackground(Color.GRAY);
+                        if ("Canceled".equals(type)) c.setBackground(Color.GRAY);
                         c.setForeground(Color.BLACK);
                         
                         return c;
@@ -208,34 +211,34 @@ public class LaserSched extends JPanel{
         TableColumn clientComboColumn1 = table.getColumnModel().getColumn(1);
         TableColumn clientComboColumn4 = table.getColumnModel().getColumn(4);
         TableColumn clientComboColumn5 = table.getColumnModel().getColumn(5);
-        TableColumn clientComboColumn6 = table.getColumnModel().getColumn(6);
-        TableColumn clientComboColumn10 = table.getColumnModel().getColumn(10);
+        TableColumn clientComboColumn7 = table.getColumnModel().getColumn(7);
         TableColumn clientComboColumn11 = table.getColumnModel().getColumn(11);
         TableColumn clientComboColumn12 = table.getColumnModel().getColumn(12);
         TableColumn clientComboColumn13 = table.getColumnModel().getColumn(13);
+        TableColumn clientComboColumn14 = table.getColumnModel().getColumn(14);
         TableColumn dateColumn3 = table.getColumnModel().getColumn(3);
-        TableColumn dateColumn7 = table.getColumnModel().getColumn(7);
         TableColumn dateColumn8 = table.getColumnModel().getColumn(8);
         TableColumn dateColumn9 = table.getColumnModel().getColumn(9);
+        TableColumn dateColumn10 = table.getColumnModel().getColumn(10);
 
         String[][] values = buildComboBoxValues();
 
         clientComboColumn1.setCellEditor(new MyComboBoxEditor(values[0]));
         clientComboColumn4.setCellEditor(new MyComboBoxEditor(values[1]));
         clientComboColumn5.setCellEditor(new MyComboBoxEditor(values[2]));
-        clientComboColumn6.setCellEditor(new MyComboBoxEditor(values[3]));
-        clientComboColumn10.setCellEditor(new MyComboBoxEditor(values[4]));
-        clientComboColumn11.setCellEditor(new MyComboBoxEditor(values[5]));
-        clientComboColumn12.setCellEditor(new MyComboBoxEditor(values[6]));
-        clientComboColumn13.setCellEditor(new MyComboBoxEditor(values[7]));
+        clientComboColumn7.setCellEditor(new MyComboBoxEditor(values[3]));
+        clientComboColumn11.setCellEditor(new MyComboBoxEditor(values[4]));
+        clientComboColumn12.setCellEditor(new MyComboBoxEditor(values[5]));
+        clientComboColumn13.setCellEditor(new MyComboBoxEditor(values[6]));
+        clientComboColumn14.setCellEditor(new MyComboBoxEditor(values[7]));
         dateColumn3.setCellEditor( new JDateChooserCellEditor());
-        dateColumn7.setCellEditor( new JDateChooserCellEditor());
         dateColumn8.setCellEditor( new JDateChooserCellEditor());
         dateColumn9.setCellEditor( new JDateChooserCellEditor());
+        dateColumn10.setCellEditor( new JDateChooserCellEditor());
         dateColumn3.setCellRenderer(dateRenderer);
-        dateColumn7.setCellRenderer(dateRenderer);
         dateColumn8.setCellRenderer(dateRenderer);
         dateColumn9.setCellRenderer(dateRenderer);
+        dateColumn10.setCellRenderer(dateRenderer);
         
         TableRowFilterSupport.forTable(table).searchable(true).apply();
         table.setRowHeight(30);

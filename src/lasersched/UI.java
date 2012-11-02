@@ -5,6 +5,9 @@
 package lasersched;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
 //import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -23,8 +26,10 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultRowSorter;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
@@ -54,7 +59,15 @@ public class UI extends javax.swing.JFrame  {
     public static int newRow = 0;
     
     public UI() throws SQLException, ClassNotFoundException {
+        
+        List<Image> icons = new ArrayList<Image>();
+        
+        icons.add(new ImageIcon("M:\\LASER\\FMI-LOGO-Vector(Dave's)16x16.gif").getImage());
+        icons.add(new ImageIcon("M:\\LASER\\FMI-LOGO-Vector(Dave's)32x32.gif").getImage());
+        icons.add(new ImageIcon("M:\\LASER\\FMI-LOGO-Vector(Dave's)64x64.gif").getImage());
+        
         initComponents();
+        this.setIconImages(icons);
         
         LaserSched.buildTable();
         
@@ -70,20 +83,20 @@ public class UI extends javax.swing.JFrame  {
         TableColumn mailDate  = viewTable.getColumnModel().getColumn(3);
         TableColumn type  = viewTable.getColumnModel().getColumn(4);
         TableColumn jobStatus  = viewTable.getColumnModel().getColumn(5);
-        TableColumn programmer  = viewTable.getColumnModel().getColumn(6);
-        TableColumn soDate  = viewTable.getColumnModel().getColumn(7);
-        TableColumn approvDate  = viewTable.getColumnModel().getColumn(8);
-        TableColumn prodDate  = viewTable.getColumnModel().getColumn(9);
-        TableColumn platform  = viewTable.getColumnModel().getColumn(10);
-        TableColumn csr  = viewTable.getColumnModel().getColumn(11);
-        TableColumn printer  = viewTable.getColumnModel().getColumn(12);
-        TableColumn data  = viewTable.getColumnModel().getColumn(13);
-        TableColumn notes  = viewTable.getColumnModel().getColumn(14);
+        TableColumn notes  = viewTable.getColumnModel().getColumn(6);
+        TableColumn programmer  = viewTable.getColumnModel().getColumn(7);
+        TableColumn soDate  = viewTable.getColumnModel().getColumn(8);
+        TableColumn approvDate  = viewTable.getColumnModel().getColumn(9);
+        TableColumn prodDate  = viewTable.getColumnModel().getColumn(10);
+        TableColumn platform  = viewTable.getColumnModel().getColumn(11);
+        TableColumn csr  = viewTable.getColumnModel().getColumn(12);
+        TableColumn printer  = viewTable.getColumnModel().getColumn(13);
+        TableColumn data  = viewTable.getColumnModel().getColumn(14);
         TableColumn id  = viewTable.getColumnModel().getColumn(15);
         
         jobNum.setPreferredWidth(50);
-        client.setPreferredWidth(250);
-        jobName.setPreferredWidth(300);
+        client.setPreferredWidth(150);
+        jobName.setPreferredWidth(200);
         mailDate.setPreferredWidth(80);
         type.setPreferredWidth(50);
         jobStatus.setPreferredWidth(110);
@@ -94,12 +107,16 @@ public class UI extends javax.swing.JFrame  {
         platform.setPreferredWidth(70);
         csr.setPreferredWidth(70);
         printer.setPreferredWidth(70);
-        data.setPreferredWidth(50);
-        notes.setPreferredWidth(385);
-        id.setPreferredWidth(30);
+        data.setPreferredWidth(75);
+        notes.setPreferredWidth(275);
+        id.setPreferredWidth(60);
         
         jScrollPane1.setViewportView(viewTable);
-
+        
+        autoScroll(jScrollPane1);
+        this.setExtendedState(MAXIMIZED_BOTH);
+        
+        
         this.addWindowListener(new WindowAdapter(){
             @Override
             public void windowClosing(WindowEvent e){
@@ -168,7 +185,7 @@ public class UI extends javax.swing.JFrame  {
                     modifiedRows.add(viewTable.getValueAt(row, 15));
                     try {
                         LaserSched.buildUpdateQuery(LaserSched.getTableData(viewTable));
-                    } catch (            SQLException | ClassNotFoundException ex) {
+                    } catch (SQLException | ClassNotFoundException ex) {
                         Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
@@ -177,7 +194,7 @@ public class UI extends javax.swing.JFrame  {
                     String jobNum = LaserSched.jTable2.getModel().getValueAt(row, 0).toString();
                     String clientName = LaserSched.jTable2.getModel().getValueAt(row, 1).toString();
                     String jobName = LaserSched.jTable2.getModel().getValueAt(row, 2).toString();
-                    String personApproving = System.getProperty("user.home");
+                    String personApproving = System.getProperty("user.name");
                     String address = "davelaub25@gmail.com";
                     String subject = jobNum + " " + clientName + " " + jobName + " Approved";
                     String text = "The job status of " + jobNum + " " + clientName + " " + jobName + " has just been changed to approved by " + personApproving + ".\n\n";
@@ -207,11 +224,17 @@ public class UI extends javax.swing.JFrame  {
         insertRow = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         printButton = new javax.swing.JButton();
+        refreshJButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("fmi Laser Status Center");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setName("jframe"); // NOI18N
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         updateTable.setText("Update Table");
         updateTable.addActionListener(new java.awt.event.ActionListener() {
@@ -242,6 +265,13 @@ public class UI extends javax.swing.JFrame  {
             }
         });
 
+        refreshJButton.setText("Refresh");
+        refreshJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshJButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -252,7 +282,9 @@ public class UI extends javax.swing.JFrame  {
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(printButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1423, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(refreshJButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1346, Short.MAX_VALUE)
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(updateTable)
@@ -270,7 +302,8 @@ public class UI extends javax.swing.JFrame  {
                     .addComponent(insertRow)
                     .addComponent(updateTable)
                     .addComponent(jButton1)
-                    .addComponent(printButton)))
+                    .addComponent(printButton)
+                    .addComponent(refreshJButton)))
         );
 
         pack();
@@ -354,14 +387,85 @@ public class UI extends javax.swing.JFrame  {
         list.add( new RowSorter.SortKey(1, SortOrder.ASCENDING) );
         sorter.setSortKeys(list);
         sorter.sort();
+        TableColumn jobNum  = printTable.getColumnModel().getColumn(0);
+        TableColumn client  = printTable.getColumnModel().getColumn(1);
+        TableColumn jobName  = printTable.getColumnModel().getColumn(2);
+        TableColumn mailDate  = printTable.getColumnModel().getColumn(3);
+        TableColumn type  = printTable.getColumnModel().getColumn(4);
+        TableColumn jobStatus  = printTable.getColumnModel().getColumn(5);
+        TableColumn notes  = printTable.getColumnModel().getColumn(6);
+        TableColumn programmer  = printTable.getColumnModel().getColumn(7);
+        TableColumn soDate  = printTable.getColumnModel().getColumn(8);
+        TableColumn approvDate  = printTable.getColumnModel().getColumn(9);
+        TableColumn data  = printTable.getColumnModel().getColumn(10);
+        
+        jobNum.setPreferredWidth(100);
+        client.setPreferredWidth(150);
+        jobName.setPreferredWidth(250);
+        mailDate.setPreferredWidth(200);
+        type.setPreferredWidth(120);
+        jobStatus.setPreferredWidth(240);
+        programmer.setPreferredWidth(120);
+        soDate.setPreferredWidth(200);
+        approvDate.setPreferredWidth(200);
+        data.setPreferredWidth(150);
+        notes.setPreferredWidth(600);
         
         JScrollPane printPane = new JScrollPane(printTable);
         JFrame frame = new JFrame("TableDemo");
+        frame.setPreferredSize(new Dimension(1000, 800));
         frame.setContentPane(printPane);
         frame.pack();
         frame.setVisible(true);
         PrintUtilities.printComponent(printPane);
     }//GEN-LAST:event_printButtonActionPerformed
+
+    private void refreshJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshJButtonActionPerformed
+        LaserSched.buildTable();
+        try {
+            viewTable = LaserSched.createAlternating(LaserSched.jTable2.getModel());
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        jScrollPane1.setViewportView(viewTable);
+        TableColumn jobNum  = viewTable.getColumnModel().getColumn(0);
+        TableColumn client  = viewTable.getColumnModel().getColumn(1);
+        TableColumn jobName  = viewTable.getColumnModel().getColumn(2);
+        TableColumn mailDate  = viewTable.getColumnModel().getColumn(3);
+        TableColumn type  = viewTable.getColumnModel().getColumn(4);
+        TableColumn jobStatus  = viewTable.getColumnModel().getColumn(5);
+        TableColumn notes  = viewTable.getColumnModel().getColumn(6);
+        TableColumn programmer  = viewTable.getColumnModel().getColumn(7);
+        TableColumn soDate  = viewTable.getColumnModel().getColumn(8);
+        TableColumn approvDate  = viewTable.getColumnModel().getColumn(9);
+        TableColumn prodDate  = viewTable.getColumnModel().getColumn(10);
+        TableColumn platform  = viewTable.getColumnModel().getColumn(11);
+        TableColumn csr  = viewTable.getColumnModel().getColumn(12);
+        TableColumn printer  = viewTable.getColumnModel().getColumn(13);
+        TableColumn data  = viewTable.getColumnModel().getColumn(14);
+        TableColumn id  = viewTable.getColumnModel().getColumn(15);
+        autoScroll(jScrollPane1);
+        jobNum.setPreferredWidth(50);
+        client.setPreferredWidth(150);
+        jobName.setPreferredWidth(200);
+        mailDate.setPreferredWidth(80);
+        type.setPreferredWidth(50);
+        jobStatus.setPreferredWidth(110);
+        programmer.setPreferredWidth(80);
+        soDate.setPreferredWidth(80);
+        approvDate.setPreferredWidth(80);
+        prodDate.setPreferredWidth(80);
+        platform.setPreferredWidth(70);
+        csr.setPreferredWidth(70);
+        printer.setPreferredWidth(70);
+        data.setPreferredWidth(75);
+        notes.setPreferredWidth(275);
+        id.setPreferredWidth(60);
+    }//GEN-LAST:event_refreshJButtonActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments
@@ -416,11 +520,17 @@ public class UI extends javax.swing.JFrame  {
     }
 };
 ////////////////////////////////////////////////////////////////////////////////
+public void autoScroll(JScrollPane sPane){
+    sPane.validate();
+    JScrollBar vScroll = sPane.getVerticalScrollBar();
+    vScroll.setValue(vScroll.getMaximum());
+}
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton insertRow;
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton printButton;
+    private javax.swing.JButton refreshJButton;
     private javax.swing.JButton updateTable;
     // End of variables declaration//GEN-END:variables
 }
