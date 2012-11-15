@@ -162,24 +162,24 @@ public class UI extends javax.swing.JFrame  {
                 TableCellListener tcl = (TableCellListener)e.getSource();
                 int column = tcl.getColumn();
                 int row = tcl.getRow();
-                String oldValue = tcl.getOldValue().toString();
-                String newValue = tcl.getNewValue().toString();
-                Object objOldValue = tcl.getOldValue();
-                Object objNewValue = tcl.getNewValue();
+                //String oldValue = tcl.getOldValue().toString();
+                //String newValue = tcl.getNewValue().toString();
+                //Object objOldValue = tcl.getOldValue();
+                //Object objNewValue = tcl.getNewValue();
                 System.out.println("Row   : " + tcl.getRow());
                 System.out.println("Column: " + tcl.getColumn());
                 System.out.println("Old   : " + tcl.getOldValue());
                 System.out.println("New   : " + tcl.getNewValue());
                 SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
                 
-                if(objNewValue instanceof Date){
-                    Object date = objNewValue;
+                if(tcl.getNewValue() instanceof Date){
+                    Object date = tcl.getNewValue();
                     date = f.format(date);
                     TableModel m = viewTable.getModel();
                     m.setValueAt(date, tcl.getRow(), tcl.getColumn());
                 }
                 
-                if(!(oldValue.equals(newValue))){
+                if(!(tcl.getOldValue() == tcl.getNewValue())){
                     System.out.println("Table Has Been Modified");
                     LaserSched.tableChangedFlag = true;
                     modifiedRows.add(viewTable.getValueAt(row, 15));
@@ -189,7 +189,7 @@ public class UI extends javax.swing.JFrame  {
                         Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                if(column == 5 && newValue.contains("Approved")){
+                if(column == 5 && tcl.getNewValue().toString().contains("Approved")){
                     System.out.println("Job changed to approved");
                     String jobNum = LaserSched.jTable2.getModel().getValueAt(row, 0).toString();
                     String clientName = LaserSched.jTable2.getModel().getValueAt(row, 1).toString();
@@ -461,6 +461,97 @@ public class UI extends javax.swing.JFrame  {
         data.setPreferredWidth(75);
         notes.setPreferredWidth(275);
         id.setPreferredWidth(60);
+        this.addWindowListener(new WindowAdapter(){
+            @Override
+            public void windowClosing(WindowEvent e){
+                System.out.println("Close Event Occured");
+                int n = 3;
+                if(LaserSched.tableChangedFlag){
+                    Object[] options = {"Yes", "No", "Cancel"};
+                    JFrame frame = new JFrame();
+                    n = JOptionPane.showOptionDialog(frame, "Would you like to save changes?",
+                            "Save",
+                            JOptionPane.YES_NO_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            options,
+                            options[2]);
+                    if(n == 0){
+                        try {
+                            LaserSched.buildUpdateQuery(LaserSched.getTableData(LaserSched.jTable2));
+                        } catch (SQLException | ClassNotFoundException ex) {
+                            Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        System.exit(0);
+                    }
+                    else if(n == 1){
+                        System.exit(0);
+                    }
+                    else if(n == 2){
+                        
+                    }
+                    
+                }
+                if(n == 3){
+                    System.exit(0);
+                }
+            }
+        });
+        
+        Action action = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                TableCellListener tcl = (TableCellListener)e.getSource();
+                int column = tcl.getColumn();
+                int row = tcl.getRow();
+                //String oldValue = tcl.getOldValue().toString();
+                //String newValue = tcl.getNewValue().toString();
+                //Object objOldValue = tcl.getOldValue();
+                //Object objNewValue = tcl.getNewValue();
+                System.out.println("Row   : " + tcl.getRow());
+                System.out.println("Column: " + tcl.getColumn());
+                System.out.println("Old   : " + tcl.getOldValue());
+                System.out.println("New   : " + tcl.getNewValue());
+                SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+                
+                if(tcl.getNewValue() instanceof Date){
+                    Object date = tcl.getNewValue();
+                    date = f.format(date);
+                    TableModel m = viewTable.getModel();
+                    m.setValueAt(date, tcl.getRow(), tcl.getColumn());
+                }
+                
+                if(!(tcl.getOldValue() == tcl.getNewValue())){
+                    System.out.println("Table Has Been Modified");
+                    LaserSched.tableChangedFlag = true;
+                    modifiedRows.add(viewTable.getValueAt(row, 15));
+                    try {
+                        LaserSched.buildUpdateQuery(LaserSched.getTableData(viewTable));
+                    } catch (SQLException | ClassNotFoundException ex) {
+                        Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                if(column == 5 && tcl.getNewValue().toString().contains("Approved")){
+                    System.out.println("Job changed to approved");
+                    String jobNum = LaserSched.jTable2.getModel().getValueAt(row, 0).toString();
+                    String clientName = LaserSched.jTable2.getModel().getValueAt(row, 1).toString();
+                    String jobName = LaserSched.jTable2.getModel().getValueAt(row, 2).toString();
+                    String personApproving = System.getProperty("user.name");
+                    String address = "davelaub25@gmail.com";
+                    String subject = jobNum + " " + clientName + " " + jobName + " Approved";
+                    String text = "The job status of " + jobNum + " " + clientName + " " + jobName + " has just been changed to approved by " + personApproving + ".\n\n";
+                    Email sender = new Email();
+                    try {
+                        sender.sendMail(address, subject, text);
+                    } catch (Exception ex) {
+                        Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        };
+    TableCellListener tcl = new TableCellListener(viewTable, action);
     }//GEN-LAST:event_refreshJButtonActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened

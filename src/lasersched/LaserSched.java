@@ -71,7 +71,7 @@ public class LaserSched extends JPanel{
                 Object [] rowData = new Object[numberOfColumns];
                 for (int i = 0; i < rowData.length; ++i)
                 {
-                    System.out.println(rs1.getString(i+1));
+                    //System.out.println(rs1.getString(i+1));
                     if(rs1.getString(i+1) == null){
                         rowData[i] = rs1.getObject(i+1);
                     }
@@ -169,9 +169,9 @@ public class LaserSched extends JPanel{
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
         for (int i = 0 ; i < nRow ; i++){
             for (int j = 0 ; j < nCol ; j++){
-                Object value = UI.viewTable.getValueAt(i, j);
+                Object value = UI.viewTable.getModel().getValueAt(i, j);
                 if(value instanceof Date){
-                    System.out.println("Date Found: " + value);
+                    //System.out.println("Date Found: " + value);
                     value = f.format((Date)value);
                     //System.out.println("Formatted Version: " + value);
                 }
@@ -195,13 +195,21 @@ public class LaserSched extends JPanel{
                         int modelRow = convertRowIndexToModel(row);
                         String type = (String)getModel().getValueAt(modelRow, 5);
                         Object date = this.getValueAt(row, column);
+                        c.setForeground(Color.BLACK);
                         if ("Approved".equals(type)) c.setBackground(Color.YELLOW);
-                        if ("Printed".equals(type)) c.setBackground(Color.GREEN);
+                        if ("Printed".equals(type)) c.setBackground(Color.BLUE);
+                        if ("Need Approval".equals(type)) c.setBackground(Color.ORANGE);
+                        if ("Need Approval".equals(type)) c.setForeground(Color.BLUE);
+                        if ("Printed".equals(type)) c.setForeground(Color.WHITE);
+                        if ("Out to Laser".equals(type)) c.setBackground(Color.GREEN);
                         if ("Printing".equals(type)) c.setBackground(Color.CYAN);
                         if ("Partially Printed".equals(type)) c.setBackground(Color.CYAN);
+                        if ("On Hold".equals(type)) c.setForeground(Color.LIGHT_GRAY);
                         if ("On Hold".equals(type)) c.setBackground(Color.GRAY);
+                        if ("Canceled".equals(type)) c.setForeground(Color.LIGHT_GRAY);
                         if ("Canceled".equals(type)) c.setBackground(Color.GRAY);
-                        c.setForeground(Color.BLACK);
+                        if ("Sign Offs due by:".equals(type)) c.setBackground(Color.PINK);
+                        //
                         
                         return c;
                 }
