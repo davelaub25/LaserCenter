@@ -6,12 +6,19 @@ package lasersched;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.SplashScreen;
 import java.awt.Toolkit;
 //import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Rectangle2D;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 //import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -52,13 +59,58 @@ public class UI extends javax.swing.JFrame  {
     /**
      * Creates new form UI
      */
-    public static ArrayList modifiedRows = new ArrayList();
+    static SplashScreen mySplash; 
+    static Graphics2D splashGraphics;               // graphics context for overlay of the splash image
+    static Rectangle2D.Double splashTextArea1;       // area where we draw the text
+    static Rectangle2D.Double splashProgressArea1;   // area where we draw the progress bar
+    static Rectangle2D.Double splashTextArea2;       // area where we draw the text
+    static Rectangle2D.Double splashProgressArea2; 
+    static Font font; 
+    public static int height;
+    public static int width;
+    
+    public static ArrayList modifiedRow = new ArrayList();
+    
+    public static ArrayList modifiedRowID = new ArrayList();
     
     public static JTable viewTable;
     
     public static int newRow = 0;
     
     public UI() throws SQLException, ClassNotFoundException {
+        
+        mySplash = SplashScreen.getSplashScreen();
+        
+        
+        Dimension ssDim = mySplash.getSize();
+        height = ssDim.height;
+        width = ssDim.width;
+        if (mySplash != null)
+        {
+            // get the size of the image now being displayed
+
+
+            
+            // stake out some area for our status information
+            splashTextArea2 = new Rectangle2D.Double(width * .30, height*0.48, width * .45, 32.);
+            splashProgressArea2 = new Rectangle2D.Double(width * .30, height*.52, width*.4, 24 );
+            splashTextArea1 = new Rectangle2D.Double(width * .30, height*0.38, width * .45, 32.);
+            splashProgressArea1 = new Rectangle2D.Double(width * .30, height*.42, width*.4, 24 );
+
+            // create the Graphics environment for drawing status info
+            splashGraphics = mySplash.createGraphics();
+            font = new Font("Arial", Font.BOLD, 24);
+            splashGraphics.setFont(font);
+
+            // initialize the status info
+
+        }
+        Graphics2D g = mySplash.createGraphics();
+        try{
+            Thread.sleep(500);             // wait a second
+        } catch (InterruptedException ex){
+            
+        }
         
         List<Image> icons = new ArrayList<Image>();
         
@@ -135,8 +187,13 @@ public class UI extends javax.swing.JFrame  {
                     if(n == 0){
                         try {
                             LaserSched.buildUpdateQuery(LaserSched.getTableData(LaserSched.jTable2));
-                        } catch (SQLException | ClassNotFoundException ex) {
+                        } catch (SQLException | ClassNotFoundException | NullPointerException ex) {
                             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                            JFrame frame2 = new JFrame("User Error... Replace User");
+                            final Writer result = new StringWriter();
+                            final PrintWriter printWriter = new PrintWriter(result);
+                            ex.printStackTrace(printWriter);
+                            JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
                         }
                         System.exit(0);
                     }
@@ -162,10 +219,32 @@ public class UI extends javax.swing.JFrame  {
                 TableCellListener tcl = (TableCellListener)e.getSource();
                 int column = tcl.getColumn();
                 int row = tcl.getRow();
+                JTable table = tcl.getTable();
+                TableModel model = table.getModel();
                 //String oldValue = tcl.getOldValue().toString();
                 //String newValue = tcl.getNewValue().toString();
                 //Object objOldValue = tcl.getOldValue();
                 //Object objNewValue = tcl.getNewValue();
+                Boolean bool = true;
+                for (int i = 0; i < model.getColumnCount(); i++) {
+                    if(i == 6){
+                        i++;
+                    }
+                    else if (i == 8){
+                        i = 11;
+                    }
+                    else if (i == 13){
+                        i++;
+                    }
+                    try{
+                        if(model.getValueAt(row, i).equals(null)){
+                            bool = false;
+                        }
+                    }
+                    catch(Exception ex){
+                        bool = false;
+                    }
+                }
                 System.out.println("Row   : " + tcl.getRow());
                 System.out.println("Column: " + tcl.getColumn());
                 System.out.println("Old   : " + tcl.getOldValue());
@@ -179,14 +258,22 @@ public class UI extends javax.swing.JFrame  {
                     m.setValueAt(date, tcl.getRow(), tcl.getColumn());
                 }
                 
-                if(!(tcl.getOldValue() == tcl.getNewValue())){
+                if(bool){
                     System.out.println("Table Has Been Modified");
                     LaserSched.tableChangedFlag = true;
-                    modifiedRows.add(viewTable.getValueAt(row, 15));
+                    System.out.println(viewTable.getModel().getRowCount());
+                    //modifiedRowID.add(viewTable.getValueAt(row, 15));
+                    modifiedRow.add(row);
                     try {
                         LaserSched.buildUpdateQuery(LaserSched.getTableData(viewTable));
-                    } catch (SQLException | ClassNotFoundException ex) {
+                    }
+                    catch (SQLException | ClassNotFoundException | NullPointerException ex) {
                         Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                        JFrame frame = new JFrame("User Error... Replace User");
+                        final Writer result = new StringWriter();
+                        final PrintWriter printWriter = new PrintWriter(result);
+                        ex.printStackTrace(printWriter);
+                        JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());;
                     }
                 }
                 if(column == 5 && tcl.getNewValue().toString().contains("Approved")){
@@ -201,8 +288,20 @@ public class UI extends javax.swing.JFrame  {
                     Email sender = new Email();
                     try {
                         sender.sendMail(address, subject, text);
+                } catch (SQLException | ClassNotFoundException | NullPointerException  ex) {
+                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                    JFrame frame = new JFrame("User Error... Replace User");
+                    final Writer result = new StringWriter();
+                    final PrintWriter printWriter = new PrintWriter(result);
+                    ex.printStackTrace(printWriter);
+                    JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
                     } catch (Exception ex) {
                         Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                        JFrame frame = new JFrame("User Error... Replace User");
+                        final Writer result = new StringWriter();
+                        final PrintWriter printWriter = new PrintWriter(result);
+                        ex.printStackTrace(printWriter);
+                        JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
                     }
                 }
             }
@@ -312,8 +411,13 @@ public class UI extends javax.swing.JFrame  {
     private void updateTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateTableActionPerformed
         try {
             LaserSched.buildUpdateQuery(LaserSched.getTableData(viewTable));
-        } catch (SQLException | ClassNotFoundException ex) {
+        } catch (SQLException | ClassNotFoundException | NullPointerException  ex) {
             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+            JFrame frame = new JFrame("User Error... Replace User");
+            final Writer result = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(result);
+            ex.printStackTrace(printWriter);
+            JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
         }
     }//GEN-LAST:event_updateTableActionPerformed
 
@@ -326,16 +430,22 @@ public class UI extends javax.swing.JFrame  {
         }
         int id = 0;
         try {
-            LaserSched.connection = DriverManager.getConnection("jdbc:mysql://davelaub.com:3306/dlaub25_lasersched","dlaub25_fmi","admin");
+            LaserSched.connection = DriverManager.getConnection("jdbc:mysql://10.10.10.14:3306/dlaub25_lasersched","dlaub25_fmi","admin");
             ResultSet rs1 = LaserSched.connection.createStatement().executeQuery("SELECT MAX(id) FROM main");
             rs1.next();
-            id = rs1.getInt(1) + 1;        // Adding 1 to get to the next unused ID to use as a temp ID
+            id = rs1.getInt(1)+1;        // Adding 1 to get to the next unused ID to use as a temp ID
             newRow++;
-        } catch (SQLException ex) {
+        } catch (SQLException | NullPointerException  ex) {
             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+            JFrame frame = new JFrame("User Error... Replace User");
+            final Writer result = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(result);
+            ex.printStackTrace(printWriter);
+            JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
         }
-        table1Model.insertRow(viewTable.getRowCount(),new Object[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,"",(id)});
-        LaserSched.newRows.add(id);
+        table1Model.insertRow(viewTable.getRowCount(),new Object[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,(id)});
+        LaserSched.newRows.add(viewTable.getRowCount());
+        LaserSched.newRowsID.add(id);
     }//GEN-LAST:event_insertRowActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -355,6 +465,7 @@ public class UI extends javax.swing.JFrame  {
         printTable.removeColumn(printTable.getColumnModel().getColumn(10));
         printTable.removeColumn(printTable.getColumnModel().getColumn(11));
         printTable.setPreferredScrollableViewportSize(printTable.getPreferredSize());
+        
         
         
         
@@ -413,10 +524,10 @@ public class UI extends javax.swing.JFrame  {
         
         JScrollPane printPane = new JScrollPane(printTable);
         JFrame frame = new JFrame("TableDemo");
-        frame.setPreferredSize(new Dimension(1000, 800));
+        frame.setPreferredSize(new Dimension(1000, 1200));
         frame.setContentPane(printPane);
         frame.pack();
-        frame.setVisible(true);
+        //frame.setVisible(true);
         PrintUtilities.printComponent(printPane);
     }//GEN-LAST:event_printButtonActionPerformed
 
@@ -424,8 +535,13 @@ public class UI extends javax.swing.JFrame  {
         LaserSched.buildTable();
         try {
             viewTable = LaserSched.createAlternating(LaserSched.jTable2.getModel());
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (SQLException | ClassNotFoundException | NullPointerException  ex) {
             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+            JFrame frame = new JFrame("User Error... Replace User");
+            final Writer result = new StringWriter();
+            final PrintWriter printWriter = new PrintWriter(result);
+            ex.printStackTrace(printWriter);
+            JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
         }
         jScrollPane1.setViewportView(viewTable);
         TableColumn jobNum  = viewTable.getColumnModel().getColumn(0);
@@ -479,8 +595,13 @@ public class UI extends javax.swing.JFrame  {
                     if(n == 0){
                         try {
                             LaserSched.buildUpdateQuery(LaserSched.getTableData(LaserSched.jTable2));
-                        } catch (SQLException | ClassNotFoundException ex) {
+                        } catch (SQLException | ClassNotFoundException | NullPointerException  ex) {
                             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                            JFrame frame3 = new JFrame("User Error... Replace User");
+                            final Writer result = new StringWriter();
+                            final PrintWriter printWriter = new PrintWriter(result);
+                            ex.printStackTrace(printWriter);
+                            JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
                         }
                         System.exit(0);
                     }
@@ -506,10 +627,32 @@ public class UI extends javax.swing.JFrame  {
                 TableCellListener tcl = (TableCellListener)e.getSource();
                 int column = tcl.getColumn();
                 int row = tcl.getRow();
+                JTable table = tcl.getTable();
+                TableModel model = table.getModel();
                 //String oldValue = tcl.getOldValue().toString();
                 //String newValue = tcl.getNewValue().toString();
                 //Object objOldValue = tcl.getOldValue();
                 //Object objNewValue = tcl.getNewValue();
+                Boolean bool = true;
+                for (int i = 0; i < model.getColumnCount(); i++) {
+                    if(i == 6){
+                        i++;
+                    }
+                    else if (i == 8){
+                        i = 11;
+                    }
+                    else if (i == 13){
+                        i++;
+                    }
+                    try{
+                        if(model.getValueAt(row, i).equals(null)){
+                            bool = false;
+                        }
+                    }
+                    catch(Exception ex){
+                        bool = false;
+                    }
+                }
                 System.out.println("Row   : " + tcl.getRow());
                 System.out.println("Column: " + tcl.getColumn());
                 System.out.println("Old   : " + tcl.getOldValue());
@@ -523,15 +666,22 @@ public class UI extends javax.swing.JFrame  {
                     m.setValueAt(date, tcl.getRow(), tcl.getColumn());
                 }
                 
-                if(!(tcl.getOldValue() == tcl.getNewValue())){
+                if(bool){
                     System.out.println("Table Has Been Modified");
                     LaserSched.tableChangedFlag = true;
-                    modifiedRows.add(viewTable.getValueAt(row, 15));
+                    System.out.println(viewTable.getModel().getRowCount());
+                    //modifiedRowID.add(viewTable.getValueAt(row, 15));
+                    modifiedRow.add(row);
                     try {
                         LaserSched.buildUpdateQuery(LaserSched.getTableData(viewTable));
-                    } catch (SQLException | ClassNotFoundException ex) {
+                    } catch (SQLException | ClassNotFoundException | NullPointerException ex) {
                         Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                        JFrame frame = new JFrame("User Error... Replace User");
+                        final Writer result = new StringWriter();
+                        final PrintWriter printWriter = new PrintWriter(result);
+                        ex.printStackTrace(printWriter);
+                        JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());;
+                        }
                 }
                 if(column == 5 && tcl.getNewValue().toString().contains("Approved")){
                     System.out.println("Job changed to approved");
@@ -545,8 +695,20 @@ public class UI extends javax.swing.JFrame  {
                     Email sender = new Email();
                     try {
                         sender.sendMail(address, subject, text);
+                } catch (SQLException | ClassNotFoundException | NullPointerException  ex) {
+                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                    JFrame frame = new JFrame("User Error... Replace User");
+                    final Writer result = new StringWriter();
+                    final PrintWriter printWriter = new PrintWriter(result);
+                    ex.printStackTrace(printWriter);
+                    JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
                     } catch (Exception ex) {
                         Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                        JFrame frame = new JFrame("User Error... Replace User");
+                        final Writer result = new StringWriter();
+                        final PrintWriter printWriter = new PrintWriter(result);
+                        ex.printStackTrace(printWriter);
+                        JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
                     }
                 }
             }
@@ -585,8 +747,14 @@ public class UI extends javax.swing.JFrame  {
             public void run() {
                 try {
                     new UI().setVisible(true);
-                } catch (SQLException | ClassNotFoundException ex) {
+                } catch (SQLException | ClassNotFoundException | NullPointerException ex) {
                     Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                    JFrame frame = new JFrame("User Error... Replace User");
+                    final Writer result = new StringWriter();
+                    final PrintWriter printWriter = new PrintWriter(result);
+                    ex.printStackTrace(printWriter);
+                    JOptionPane.showMessageDialog(frame,"User Error... Replace User\n" + result.toString());
+                    
                 }
 
             }

@@ -6,17 +6,17 @@
 package lasersched;
 
 import com.ezware.oxbow.swingbits.table.filter.TableRowFilterSupport;
-import com.standbysoft.component.date.swing.JDatePicker;
-//import com.toedter.calendar.JDateChooserCellEditor;
 import java.awt.Color;
 import java.awt.Component;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.sql.*;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
-import java.text.Format;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.*;
 
 /**
@@ -29,6 +29,7 @@ public class LaserSched extends JPanel{
      public static boolean tableChangedFlag = false;
      public static Connection connection;
      public static ArrayList newRows = new ArrayList();
+     public static ArrayList newRowsID = new ArrayList();
      
     /**
      * @param args the command line arguments
@@ -38,7 +39,7 @@ public class LaserSched extends JPanel{
     public static void buildTable() /*throws SQLException*/ {
         try {
             Class.forName("com.mysql.jdbc.Driver"); 
-            connection = DriverManager.getConnection("jdbc:mysql://davelaub.com:3306/dlaub25_lasersched","dlaub25_fmi","admin"); 
+            connection = DriverManager.getConnection("jdbc:mysql://10.10.10.14:3306/dlaub25_lasersched","dlaub25_fmi","admin"); 
             ResultSet rs1 = connection.createStatement().executeQuery("SELECT * FROM `main`");
             ResultSetMetaData md1 = rs1.getMetaData();
             System.out.println("Connection succeed!"); 
@@ -96,31 +97,35 @@ public class LaserSched extends JPanel{
              * frame.setContentPane(printPane);
              * frame.pack();
              * frame.setVisible(true);*/
-        }
-        catch (ClassNotFoundException | SQLException e) { 
+            } catch (SQLException | ClassNotFoundException | NullPointerException  ex) {
+                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
+                JFrame frame = new JFrame("User Error... Replace User");
+                final Writer result = new StringWriter();
+                final PrintWriter printWriter = new PrintWriter(result);
+                ex.printStackTrace(printWriter);
+                JOptionPane.showMessageDialog(frame,result.toString());
             } 
         }
     
     ////////////////////////////////////////////////////////////////////////////
     public static void buildUpdateQuery(Object[][] rowData) throws SQLException, ClassNotFoundException {
+        System.out.println("New Update Query Started");
+        
         DefaultTableModel dtm = (DefaultTableModel) UI.viewTable.getModel();
         
         int nRow = dtm.getRowCount(), nCol = dtm.getColumnCount();
         
         Class.forName("com.mysql.jdbc.Driver");
-        connection = DriverManager.getConnection("jdbc:mysql://davelaub.com:3306/dlaub25_lasersched","dlaub25_fmi","admin"); 
+        connection = DriverManager.getConnection("jdbc:mysql://10.10.10.14:3306/dlaub25_lasersched","dlaub25_fmi","admin"); 
         ResultSet rs1 = connection.createStatement().executeQuery("SELECT * FROM main");
         ResultSetMetaData md1 = rs1.getMetaData();
-
-        for( int j = 1; j <= nRow ; j++ ){
-            String updateQuery = "UPDATE main SET jobNum = ?, client = ?, jobName = ?, mailDate = ?, type = ?, jobStatus = ?, notes = ?, programmer = ?, signOffs = ?, approved = ?, production = ?, platform = ?, csr = ?, printer = ?, data = ? WHERE id = ?";
-            String insertQuery = "INSERT INTO `dlaub25_lasersched`.`main` (`jobNum`, `client`, `jobName`, `mailDate`, `type`, `jobStatus`, `Notes`, `programmer`, `signOffs`, `approved`, `production`, `platform`, `csr`, `printer`, `data`, `id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, null);";
-            PreparedStatement preparedStmtUpdate = connection.prepareStatement(updateQuery);
+        for (int k = 0; k < newRows.size(); k++) {
+            int rowNum = Integer.parseInt(newRows.get(k).toString())-1;
+            String insertQuery = "INSERT INTO `dlaub25_lasersched`.`main` (`jobNum`, `client`, `jobName`, `mailDate`, `type`, `jobStatus`, `Notes`, `programmer`, `signOffs`, `approved`, `production`, `platform`, `csr`, `printer`, `data`, `id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0);";
             PreparedStatement preparedStmtInsert = connection.prepareStatement(insertQuery);
-            
-            if(newRows.contains(rowData[j-1][15])){
+            if(rowData[rowNum][0] != null && rowData[rowNum][1] != null && rowData[rowNum][2] != null && rowData[rowNum][3] != null && rowData[rowNum][4] != null && rowData[rowNum][5] != null && rowData[rowNum][7] != null && rowData[rowNum][11] != null && rowData[rowNum][12] != null && rowData[rowNum][14] != null){
                 for( int i = 1 ; i <= (nCol - 1) ; i++){      //Using nCol - 1 to skip the ID field
-                    if (rowData[j-1][i-1] == null){
+                    if (rowData[rowNum][i-1] == null){
                         if( i == 3 || i == 8 || i == 9 || i == 10 ){
                             preparedStmtInsert.setNull(i, java.sql.Types.DATE);
                         }
@@ -132,34 +137,43 @@ public class LaserSched extends JPanel{
                         }
                     }
                     else{
-                        preparedStmtInsert.setObject(i, rowData[j-1][i-1].toString());
+                        preparedStmtInsert.setObject(i, rowData[rowNum][i-1].toString());
                     }
                 }
-                preparedStmtInsert.executeUpdate();                
+                System.out.println("ONE ATTEMPT TO INSERT");
+                preparedStmtInsert.executeUpdate();  
             }
-            else if (UI.modifiedRows.contains(rowData[j-1][15])){
-                for( int i = 1 ; i <= nCol ; i++){         
-                    if (rowData[j-1][i-1] == null){
-                        if( i == 3 || i == 8 || i == 9 || i == 10 ){
-                            preparedStmtUpdate.setNull(i, java.sql.Types.DATE);
-                        }
-                        if( i == 1 || i == 2 || i == 4 || i == 5 || i == 6 || i == 7 || i == 11 || i == 12 || i == 13 || i == 14 ){
-                            preparedStmtUpdate.setNull(i, java.sql.Types.VARCHAR);
-                        }
-                        if( i == 0 || i == 15 ){
-                            preparedStmtUpdate.setNull(i, java.sql.Types.INTEGER);
-                        }
+        }
+        for (int l = 0; l < UI.modifiedRow.size(); l++) {
+            String updateQuery = "UPDATE main SET jobNum = ?, client = ?, jobName = ?, mailDate = ?, type = ?, jobStatus = ?, notes = ?, programmer = ?, signOffs = ?, approved = ?, production = ?, platform = ?, csr = ?, printer = ?, data = ? WHERE id = ?";
+            PreparedStatement preparedStmtUpdate = connection.prepareStatement(updateQuery);
+            int rowNum = Integer.parseInt(UI.modifiedRow.get(l).toString());
+            for( int i = 1 ; i <= nCol ; i++){
+                if (rowData[rowNum][i-1] == null){
+                    if( i == 3 || i == 8 || i == 9 || i == 10 ){
+                        preparedStmtUpdate.setNull(i, java.sql.Types.DATE);
                     }
-                    else{
-                        preparedStmtUpdate.setString(i, rowData[j-1][i-1].toString());
+                    if( i == 1 || i == 2 || i == 4 || i == 5 || i == 6 || i == 7 || i == 11 || i == 12 || i == 13 || i == 14 ){
+                        preparedStmtUpdate.setNull(i, java.sql.Types.VARCHAR);
+                    }
+                    if( i == 0 || i == 15 ){
+                        preparedStmtUpdate.setNull(i, java.sql.Types.INTEGER);
                     }
                 }
-                preparedStmtUpdate.executeUpdate();
+                else{
+                    preparedStmtUpdate.setString(i, rowData[rowNum][i-1].toString());
+                }
             }
+            System.out.println(preparedStmtUpdate.toString());
+            preparedStmtUpdate.executeUpdate();
         }
         tableChangedFlag = false;
         connection.close();
         newRows.clear();
+        newRowsID.clear();
+        UI.modifiedRow.clear();
+        UI.modifiedRowID.clear();
+        System.out.println("Update Query Finished");
     }
     ////////////////////////////////////////////////////////////////////////////
     public static Object[][] getTableData (JTable table) {
@@ -265,7 +279,7 @@ public class LaserSched extends JPanel{
     ////////////////////////////////////////////////////////////////////////////
     public static int getIdValue(String s, int colNum) throws SQLException, ClassNotFoundException {
         Class.forName("com.mysql.jdbc.Driver"); 
-        connection = DriverManager.getConnection("jdbc:mysql://davelaub.com:3306/dlaub25_lasersched","dlaub25_fmi","admin");
+        connection = DriverManager.getConnection("jdbc:mysql://10.10.10.14:3306/dlaub25_lasersched","dlaub25_fmi","admin");
         ResultSet rs1 = connection.createStatement().executeQuery("SELECT * FROM main");
         ResultSetMetaData md1 = rs1.getMetaData();
         String t = md1.getColumnName(colNum);
@@ -283,7 +297,7 @@ public class LaserSched extends JPanel{
         String tableArray[] = {"client", "type", "jobStatus", "programmer", "platform", "csr",  "printer", "data",};
         String table;
         Class.forName("com.mysql.jdbc.Driver");
-        connection = DriverManager.getConnection("jdbc:mysql://davelaub.com:3306/dlaub25_lasersched", "dlaub25_fmi", "admin");
+        connection = DriverManager.getConnection("jdbc:mysql://10.10.10.14:3306/dlaub25_lasersched", "dlaub25_fmi", "admin");
         ResultSet rs1;
         int i = tableArray.length;
         String[][] boxValues;
